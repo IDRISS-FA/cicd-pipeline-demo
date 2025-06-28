@@ -21,7 +21,7 @@ jobs:
           git clean -fd
           git pull origin main --force
 
-      # 2. Deploy to Minikube 
+      # 2. Deploy to Minikube  
       - name: Apply Kubernetes manifests
         run: |
           echo "🚀 Deploying to Minikube..."
