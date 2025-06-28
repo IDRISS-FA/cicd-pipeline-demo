@@ -1,36 +1,38 @@
-name: CI/CD Pipeline
+name: Deploy to Minikube
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]  # Trigger after successful build
+    types: [completed]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: self-hosted  # Uses your Ubuntu VM runner
+    defaults:
+      run:
+        working-directory: /home/kuber/cicd-pipeline-demo  # 🔥 Your repo path
+
     steps:
-      - uses: actions/checkout@v3
+      # 1. Force-sync with GitHub (critical!)
+      - name: Sync Repo
+        run: |
+          git reset --hard HEAD
+          git clean -fd
+          git pull origin main --force
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-          cache: 'npm'
+      # 2. Deploy to Minikube
+      - name: Apply Kubernetes manifests
+        run: |
+          echo "🚀 Deploying to Minikube..."
+          kubectl apply -f k8s/
 
-      - run: npm install
-      - run: npm test
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/cicd-pipeline-demo:latest
-          # Remove the 'secrets' section (now handled by login-action)
+      # 3. Verify deployment
+      - name: Check status
+        run: |
+          echo "✅ Pods:"
+          kubectl get pods -n default
+          echo "🌐 Services:"
+          kubectl get svc -n default
+          echo "🔗 Access URL:"
+          minikube service cicd-pipeline-demo-service --url || echo "Run 'minikube service list'"
