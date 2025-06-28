@@ -1,0 +1,26 @@
+name: Deploy to Minikube
+
+on:
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]  # Trigger after successful build
+    types: [completed]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}  # Only if build passed
+    runs-on: ubuntu-kuber  # Uses your Ubuntu VM runner
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Minikube
+        run: |
+          echo "🚀 Applying Kubernetes manifests..."
+          kubectl apply -f k8s/
+
+          echo "✅ Verifying deployment..."
+          kubectl get pods
+          kubectl get svc
+
+          echo "🌐 Access your app with:"
+          minikube service cicd-pipeline-service --url || echo "Run 'minikube service list' to find the URL"
