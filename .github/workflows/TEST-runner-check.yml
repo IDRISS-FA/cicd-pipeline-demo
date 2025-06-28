@@ -1,0 +1,14 @@
+name: TEST Runner Connection
+on: 
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  smoke-test:
+    runs-on: self-hosted  # Targets your runner
+    steps:
+      - name: Check runner connectivity
+        run: |
+          echo "✅ Runner is online!"
+          echo "Node.js: $(node -v)"
+          echo "Kubectl: $(kubectl version --short 2>/dev/null || echo 'Not available')"
+          echo "Minikube status: $(minikube status 2>/dev/null || echo 'Minikube not found')"
