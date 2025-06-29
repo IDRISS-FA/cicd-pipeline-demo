@@ -23,9 +23,8 @@ jobs:
 
       # 2. Deploy to Minikube  
       - name: Apply Kubernetes manifests
-        run: |
-          echo "🚀 Deploying to Minikube..."
-          kubectl apply -f k8s/
+        run: kubectl apply -f deployment.yml -f service.yml
+          
 
       # 3. Verify deployment
       - name: Check status
