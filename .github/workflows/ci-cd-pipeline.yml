@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: self-hosted  # Uses your Ubuntu VM runner
+    runs-on: ubuntu-kuber  # Uses your Ubuntu VM runner
     defaults:
       run:
         working-directory: /home/kuber/cicd-pipeline-demo  # 🔥 Your repo path
