@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: ["CI/CD Pipeline"]  # Trigger after successful build
     types: [completed]
-
+    workflow_dispatch:
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
